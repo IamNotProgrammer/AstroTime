@@ -37,8 +37,14 @@ MainWindow::~MainWindow()
 void MainWindow::changed_time()
 	{
 
-	int UT_h, UT_m, gm_h, gm_m, LST_h, LST_m ;
-	double UT_s, seconds, jd, gmst, gm_s, LST, LST_s ;
+	int UT_h, UT_m, gm_h, gm_m ;
+	double UT_s, seconds, jd, gmst, gm_s ;
+	int LST_h, LST_m ;
+	double LST, LST_s ;
+	int TAI_h, TAI_m ;
+	double TAI, TAI_s ;
+	int GPS_h, GPS_m ;
+	double GPS, GPS_s ;
 
 	UT = hour - tz ;
 
@@ -118,6 +124,32 @@ void MainWindow::changed_time()
 	ui -> lst_h -> setText(QString::number(LST_h)) ;
 	ui -> lst_m -> setText(QString::number(LST_m)) ;
 	ui -> lst_s -> setText(QString::number(LST_s, 'f', 3)) ;
+
+
+
+	TAI = UTC2TAI(year_2, month_2, day_2, UT_h, UT_m, UT_s) ;
+
+	TAI_h = int(TAI) ;
+	TAI_m = int( (TAI - TAI_h) * 60) ;
+	TAI_s = (TAI - TAI_h) * 3600 - TAI_m * 60 ;
+
+	ui -> tai_h -> setText(QString::number(TAI_h)) ;
+	ui -> tai_m -> setText(QString::number(TAI_m)) ;
+	ui -> tai_s -> setText(QString::number(TAI_s, 'f', 3)) ;
+
+	GPS = TAI - 5.27777777777777e-3 ;
+
+	if (GPS < 0)
+		GPS += 24 ;
+
+	GPS_h = int(GPS) ;
+	GPS_m = int( (GPS - GPS_h) * 60) ;
+	GPS_s = (GPS - GPS_h) * 3600 - GPS_m * 60 ;
+
+	ui -> gps_h -> setText(QString::number(GPS_h)) ;
+	ui -> gps_m -> setText(QString::number(GPS_m)) ;
+	ui -> gps_s -> setText(QString::number(GPS_s, 'f', 3)) ;
+
 
 	}
 
