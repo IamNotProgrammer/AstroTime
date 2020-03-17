@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTime>
+#include <QSettings>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,14 +36,22 @@ private slots:
 
 	void on_stop_clicked();
 
+	void on_pushButton_clicked();
+
+	void LoadSettings() ;
+
+	void on_latitude_textChanged(const QString &arg1);
+
+	void on_altitude_textChanged(const QString &arg1);
+
 private:
 	Ui::MainWindow *ui;
 
 	int year = 2020, month = 1, day = 1 ;
 	int year_2, month_2, day_2 ;
 	double hour, UT ;
-	double tz ; // time zone
-	double lo ; // longitude
+	float tz, h ; // time zone
+	double lo, la, al ; // longitude
 	QTimer *timer ;
 	int to ; // time offset from UTC
 

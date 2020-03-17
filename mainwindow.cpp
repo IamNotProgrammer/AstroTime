@@ -6,6 +6,7 @@
 #include <ctime>
 #include <chrono>
 #include <QTimer>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -22,9 +23,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 	to = static_cast<int> (local - gmt) * 1000 ;
 
-	float h = to * 2.7777777777e-7 ;
+	h = to * 2.7777777777e-7 ;
 
 	ui -> time_zone_h -> setText(QString::number(h)) ;
+
+	LoadSettings() ;
+	on_set_time_clicked() ;
 
 }
 
@@ -112,7 +116,7 @@ void MainWindow::changed_time()
 	ui -> g_m -> setText(QString::number(gm_m)) ;
 	ui -> g_s -> setText(QString::number(gm_s, 'f', 3)) ;
 
-	LST = fmod(gmst + lo, 24) ;
+	LST = fmod(gmst + lo  * 0.066666666666666, 24) ;
 
 	if (LST < 0)
 		LST += 24 ;
@@ -193,7 +197,18 @@ void MainWindow::on_date_userDateChanged(const QDate &date)
 
 void MainWindow::on_longitude_textChanged(const QString &arg1)
 {
-	lo = arg1.toDouble() * 0.066666666666666 ; // degrees to hours
+	lo = arg1.toDouble() ;
+
+}
+
+void MainWindow::on_latitude_textChanged(const QString &arg1)
+{
+	la = arg1.toDouble() ;
+}
+
+void MainWindow::on_altitude_textChanged(const QString &arg1)
+{
+	al = arg1.toDouble() ;
 }
 
 void MainWindow::on_set_time_clicked()
@@ -220,3 +235,61 @@ void MainWindow::on_stop_clicked()
 {
 	timer -> stop() ;
 }
+
+void MainWindow::LoadSettings()
+{
+
+	QSettings setup("Company", "AstroTime") ;
+	setup.beginGroup("MainWindow") ;
+
+	QVariant myvar = setup.value("Longitude", -0.0014) ;
+	ui -> longitude -> setText(myvar.toString()) ;
+
+	myvar = setup.value("Latitude", 51.4778) ;
+	ui -> latitude -> setText(myvar.toString()) ;
+
+	myvar = setup.value("Altitude", 0) ;
+	ui -> altitude -> setText(myvar.toString()) ;
+
+	setup.endGroup() ;
+
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+
+	QSettings setup("Company", "AstroTime") ;
+	setup.beginGroup("MainWindow") ;
+	setup.setValue("Longitude", lo ) ;
+	setup.setValue("Latitude", la ) ;
+	setup.setValue("Altitude", al ) ;
+
+	setup.endGroup() ;
+
+	ui -> statusbar -> showMessage("Position saved", 5000) ;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
