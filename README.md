@@ -6,7 +6,7 @@ How to download it?
 use this link
 https://github.com/IamNotProgrammer/AstroTime/releases/download/v0.0.0/astrotime
 
-Or if youre masohist compile it yourself. If you're on windows don't ask me how.
+Or if youre masochist compile it yourself. If you're on windows don't ask me how.
 
 On Linux
 download qt
