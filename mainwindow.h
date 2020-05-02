@@ -53,7 +53,7 @@ private:
 	float tz, h ; // time zone
 	double lo, la, al ; // longitude
 	QTimer *timer ;
-	int to ; // time offset from UTC
+	int to ; // time offset from UTC in milis
 
 };
 #endif // MAINWINDOW_H

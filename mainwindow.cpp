@@ -7,6 +7,7 @@
 #include <chrono>
 #include <QTimer>
 #include <QSettings>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -17,13 +18,11 @@ MainWindow::MainWindow(QWidget *parent)
 	timer = new QTimer(this) ;
 	connect( timer, SIGNAL( timeout() ), this, SLOT( on_set_time_clicked() ) ) ;
 
-	std::time_t now = std::time(NULL) ;
-	std::time_t local = std::mktime(std::localtime(&now)) ;
-	std::time_t gmt = std::mktime(std::gmtime(&now)) ;
+	std::time_t t = std::time(0);   // get time now
+	std::tm* local = std::localtime(&t);
 
-	to = static_cast<int> (local - gmt) * 1000 ;
-
-	h = to * 2.7777777777e-7 ;
+	h = (local -> tm_gmtoff) / 3600 ;
+	to = h * 36e5 ;
 
 	ui -> time_zone_h -> setText(QString::number(h)) ;
 
@@ -46,7 +45,7 @@ void MainWindow::changed_time()
 	int LST_h, LST_m ;
 	double LST, LST_s ;
 	int TAI_h, TAI_m ;
-	double TAI, TAI_s ;
+	double tai, TAI_s ;
 	int GPS_h, GPS_m ;
 	double GPS, GPS_s ;
 
@@ -105,7 +104,6 @@ void MainWindow::changed_time()
 	ui -> j_day -> setText( QString::number(jd, 'f', 8) ) ;
 
 
-
 	gmst = GMST(year_2, month_2, day_2, UT_h, UT_m, UT_s) ;
 
 	gm_h = int(gmst) ;
@@ -131,17 +129,17 @@ void MainWindow::changed_time()
 
 
 
-	TAI = UTC2TAI(year_2, month_2, day_2, UT_h, UT_m, UT_s) ;
+	tai = TAI(year_2, month_2, day_2, UT_h, UT_m, UT_s) ;
 
-	TAI_h = int(TAI) ;
-	TAI_m = int( (TAI - TAI_h) * 60) ;
-	TAI_s = (TAI - TAI_h) * 3600 - TAI_m * 60 ;
+	TAI_h = int(tai) ;
+	TAI_m = int( (tai - TAI_h) * 60) ;
+	TAI_s = (tai - TAI_h) * 3600 - TAI_m * 60 ;
 
 	ui -> tai_h -> setText(QString::number(TAI_h)) ;
 	ui -> tai_m -> setText(QString::number(TAI_m)) ;
 	ui -> tai_s -> setText(QString::number(TAI_s, 'f', 3)) ;
 
-	GPS = TAI - 5.27777777777777e-3 ;
+	GPS = tai - 5.27777777777777e-3 ;
 
 	if (GPS < 0)
 		GPS += 24 ;
@@ -166,10 +164,19 @@ void MainWindow::on_time_userTimeChanged(const QTime &time)
 
 void MainWindow::on_time_zone_h_textChanged(const QString &arg1)
 {
-	if (arg1[0] == "-")
-		tz = -abs( arg1.toDouble() ) - ( ui -> time_zone_m -> text().toDouble() ) / 60 ;
+	if (arg1 != "")
+		{
+
+		if (arg1[0] == "-")
+			tz = -abs( arg1.toDouble() ) - ( ui -> time_zone_m -> text().toDouble() ) / 60 ;
+
+		else
+			tz = abs( arg1.toDouble() ) + ( ui -> time_zone_m -> text().toDouble() ) / 60 ;
+
+		}
+
 	else
-		tz = abs( arg1.toDouble() ) + ( ui -> time_zone_m -> text().toDouble() ) / 60 ;
+		tz = ( ui -> time_zone_m -> text().toDouble() ) / 60 ;
 
 	changed_time() ;
 }
@@ -180,6 +187,8 @@ void MainWindow::on_time_zone_m_textChanged(const QString &arg1)
 		tz = -abs( ui -> time_zone_h -> text().toDouble() ) - ( arg1.toDouble() ) / 60 ;
 	else
 		tz = abs( ui -> time_zone_h -> text().toDouble() ) + ( arg1.toDouble() ) / 60 ;
+
+	qDebug() << arg1 ;
 
 	changed_time() ;
 }
