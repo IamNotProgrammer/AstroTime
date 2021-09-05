@@ -1,6 +1,6 @@
 #include "mainwindow.h"
-#include "console.h"
 #include <QApplication>
+#include <console.h>
 
 int main(int argc, char *argv[])
 {
@@ -8,9 +8,7 @@ int main(int argc, char *argv[])
 	MainWindow w;
 	w.show();
 
-	console cons ;
-	cons.start(QThread::LowPriority) ;
-
+    console() ;
 
 	return a.exec();
 }
